@@ -28,10 +28,10 @@
       li.textContent = t;
       $('#steps').appendChild(li);
     });
-    renderQr($('#qrBox'), s.qrImage);
+    renderQr($('#qrBox'), LW.qrSrc(s));
     const mini = $('#miniQr');
     mini.innerHTML = '<div class="qr-box"></div><span></span>';
-    renderQr(mini.querySelector('.qr-box'), s.qrImage);
+    renderQr(mini.querySelector('.qr-box'), LW.qrSrc(s));
     mini.querySelector('span').textContent = s.qrCaption;
     body.classList.toggle('no-unlock', !s.requireUnlock);
     body.dataset.fx = s.fx;
@@ -425,7 +425,6 @@
     const el = $('#result');
     const txt = RESULT_TEXT[prize.tier] || RESULT_TEXT.common;
     el.dataset.tier = prize.tier;
-    $('#resultTier').innerHTML = `<span class="star"></span> ${LW.TIERS[prize.tier].label}`;
     $('#resultHead').textContent = txt.head;
     $('#resultName').textContent = prize.name;
     $('#resultSub').textContent = txt.sub;

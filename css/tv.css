@@ -200,7 +200,7 @@ body.no-unlock .mini-qr { display: flex; }
 .result.show { opacity: 1; pointer-events: auto; }
 .result-inner { text-align: center; padding: 0 6vw; transform: scale(.85); transition: transform .5s cubic-bezier(.2, 1.4, .4, 1); }
 .result.show .result-inner { transform: scale(1); }
-.result .chip { font-size: 2vh; padding: 1vh 2.4vh; letter-spacing: .06em; }
+.result-logo { width: min(34vw, 46vh); max-width: 100%; display: block; margin: 0 auto; filter: drop-shadow(0 0 24px rgba(255, 62, 165, .45)); }
 .result-head { margin-top: 3vh; font-family: var(--font-thai-head); font-weight: 700; font-size: 5vh; color: var(--text-muted); }
 .result-name {
   margin-top: 1vh;

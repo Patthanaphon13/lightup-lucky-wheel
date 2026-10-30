@@ -20,6 +20,10 @@ const LW = (() => {
     jackpot: { label: 'แจ็คพอต',      short: 'แจ็คพอต' },
   };
 
+  // รูป QR ที่ใช้เมื่อไม่ได้อัปโหลดรูปเองในหน้าทีมงาน (เปลี่ยนไฟล์ assets/qr.png ได้)
+  const DEFAULT_QR = 'assets/qr.png';
+  const qrSrc = (s) => s.qrImage || DEFAULT_QR;
+
   // สีช่องวงล้ออัตโนมัติ ตาม CI (ไม่มีสีทอง)
   const AUTO_COLORS = ['#1C1C26', '#FF3EA5', '#14141C', '#8B5CF6'];
 
@@ -216,7 +220,7 @@ const LW = (() => {
   if (localStorage.getItem(K.config) == null) resetConfig();
 
   return {
-    K, TIERS, AUTO_COLORS, DEFAULT_CONFIG, clone,
+    K, TIERS, AUTO_COLORS, DEFAULT_CONFIG, DEFAULT_QR, qrSrc, clone,
     getConfig, setConfig, resetConfig, normalize,
     getLog, addLog, clearLog, countGiven, remaining, odds, pick, simulate, sliceColor,
     send, onChange, getLive, setLive, beat, tvAlive, screenExtended, openTv,

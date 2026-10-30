@@ -285,9 +285,10 @@
   }
   function renderQrPreview() {
     const box = $('#qrPreview');
-    const src = draft.settings.qrImage;
-    box.classList.toggle('empty', !src);
-    box.innerHTML = src ? `<img src="${esc(src)}" alt="QR">` : 'ยังไม่มีรูป QR';
+    const src = LW.qrSrc(draft.settings);
+    box.classList.remove('empty');
+    box.innerHTML = `<img src="${esc(src)}" alt="QR">`;
+    $('#qrNote').textContent = draft.settings.qrImage ? 'ใช้รูปที่อัปโหลด' : 'ใช้รูปเริ่มต้น (assets/qr.png)';
   }
 
   $('[data-page="settings"]').addEventListener('input', (e) => {
