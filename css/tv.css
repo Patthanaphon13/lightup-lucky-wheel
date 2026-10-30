@@ -176,8 +176,8 @@ body[data-phase="result"] .state-ready { visibility: hidden; }
 .spinning-text { animation: breathe 1s ease-in-out infinite; }
 @keyframes breathe { 50% { opacity: .55; } }
 
-.mini-qr { display: none; margin-top: 2vh; align-items: center; gap: 2vh; color: var(--text-muted); font-size: 1.9vh; }
-body.no-unlock .mini-qr { display: flex; }
+/* QR เล็กโชว์ค้างไว้ตอนพร้อมหมุน คนที่ต่อคิวจะได้สแกนรอไว้ก่อน */
+.mini-qr { display: flex; margin-top: 2vh; align-items: center; gap: 2vh; color: var(--text-muted); font-size: 1.9vh; }
 .mini-qr .qr-box { width: 13vh; padding: .8vh; border-radius: 12px; }
 
 /* สั่นเบา ๆ เมื่อกดหมุนตอนยังไม่ได้ปลดล็อก */
@@ -327,6 +327,21 @@ body.hide-cursor, body.hide-cursor * { cursor: none !important; }
 @keyframes drift1 { to { transform: translate(-18vw, 22vh) scale(1.2); } }
 @keyframes drift2 { to { transform: translate(22vw, -18vh) scale(1.15); } }
 @keyframes drift3 { to { transform: translate(-14vw, 16vh) scale(.85); } }
+/* QR มุมขวาล่างของหน้ารอ */
+.idle-qr {
+  position: absolute;
+  right: 4vw;
+  bottom: 5vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2vh;
+  color: var(--text-muted);
+  font-size: 1.9vh;
+  font-weight: 600;
+}
+.idle-qr .qr-box { width: 20vh; box-shadow: 0 0 40px rgba(255, 62, 165, .45); }
+
 /* ระหว่างโชว์หน้ารอ ไม่ต้องวาดของข้างหลัง — ประหยัดเครื่อง */
 body.idle-on .stage,
 body.idle-on .aurora,

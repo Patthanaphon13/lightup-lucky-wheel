@@ -33,6 +33,8 @@
     mini.innerHTML = '<div class="qr-box"></div><span></span>';
     renderQr(mini.querySelector('.qr-box'), LW.qrSrc(s));
     mini.querySelector('span').textContent = s.qrCaption;
+    renderQr($('#idleQr'), LW.qrSrc(s));
+    $('#idleQrCaption').textContent = s.qrCaption;
     body.classList.toggle('no-unlock', !s.requireUnlock);
     body.dataset.fx = s.fx;
   }
