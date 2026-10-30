@@ -1,0 +1,600 @@
+/* จอทีวี — ออกแบบสำหรับจอแนวนอน 16:9 ขนาดทุกอย่างอิงความสูงจอ */
+html, body { height: 100%; overflow: hidden; }
+body { cursor: default; user-select: none; }
+
+.stage {
+  position: relative;
+  z-index: 1;
+  height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 4vw;
+  padding: 5vh 5vw;
+}
+
+/* ---------- วงล้อ ---------- */
+.wheel-area { display: flex; justify-content: center; align-items: center; height: 100%; }
+
+.wheel-wrap {
+  position: relative;
+  width: min(86vh, 50vw);
+  aspect-ratio: 1;
+}
+.wheel-wrap::before {
+  /* แสงเรืองชมพูรอบวงล้อ */
+  content: '';
+  position: absolute;
+  inset: 2%;
+  border-radius: 50%;
+  box-shadow: 0 0 80px rgba(255, 62, 165, .25), 0 0 160px rgba(139, 92, 246, .18);
+}
+#wheel {
+  position: absolute;
+  inset: 5%;
+  width: 90%;
+  height: 90%;
+  border-radius: 50%;
+  will-change: transform;
+}
+
+/* ไฟรอบวงล้อ */
+.lights { position: absolute; inset: 0; border-radius: 50%; background: var(--surface); border: 1px solid var(--line-strong); }
+.light {
+  position: absolute;
+  width: 1.6%;
+  aspect-ratio: 1;
+  margin: -0.8% 0 0 -0.8%;
+  border-radius: 50%;
+  background: var(--pink-light);
+  box-shadow: 0 0 10px var(--pink), 0 0 2px #fff;
+  animation: blink 1.6s infinite;
+}
+.light:nth-child(even) { background: var(--violet-light); box-shadow: 0 0 10px var(--violet), 0 0 2px #fff; animation-delay: .8s; }
+body[data-phase="spinning"] .light { animation-duration: .35s; }
+body[data-phase="spinning"] .light:nth-child(even) { animation-delay: .175s; }
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: .25; } }
+
+.pointer {
+  position: absolute;
+  top: -3.5%;
+  left: 50%;
+  width: 7.5%;
+  transform: translateX(-50%);
+  transform-origin: 50% 30%;
+  filter: drop-shadow(0 4px 14px rgba(255, 62, 165, .6));
+  z-index: 3;
+}
+.pointer.tick { animation: tick .12s ease-out; }
+@keyframes tick { 0% { transform: translateX(-50%) rotate(0); } 40% { transform: translateX(-50%) rotate(-14deg); } 100% { transform: translateX(-50%) rotate(0); } }
+
+.hub {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 17%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 0;
+  padding: 0;
+  background: radial-gradient(circle at 35% 30%, #2a2a38, var(--night) 70%);
+  box-shadow: 0 0 0 3px rgba(255, 62, 165, .9), 0 0 0 6px var(--night), 0 0 0 7px rgba(139, 92, 246, .8), 0 0 40px rgba(255, 62, 165, .45);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  z-index: 2;
+}
+.hub .star { width: 46%; height: 46%; filter: drop-shadow(0 0 12px rgba(255, 62, 165, .8)); }
+body[data-phase="ready"] .hub { animation: pulse 1.4s infinite; }
+@keyframes pulse { 50% { box-shadow: 0 0 0 3px rgba(255, 62, 165, .9), 0 0 0 6px var(--night), 0 0 0 7px rgba(139, 92, 246, .8), 0 0 70px rgba(255, 62, 165, .8); } }
+
+/* ---------- แผงข้อความ ---------- */
+.panel { display: flex; flex-direction: column; align-items: flex-start; gap: 2.2vh; min-width: 0; }
+.panel .logo { width: min(22vw, 360px); min-width: 120px; margin-bottom: 2vh; }
+.eyebrow { font-size: 1.6vh; letter-spacing: .14em; padding: .8vh 1.6vh; }
+.eyebrow .star { width: 1.6vh; height: 1.6vh; }
+
+h1 {
+  margin: 0;
+  font-family: var(--font-thai-head);
+  font-weight: 700;
+  font-size: 6.4vh;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+.subtitle { margin: 0; color: var(--text-muted); font-size: 2.3vh; line-height: 1.5; max-width: 34em; }
+
+.state { display: none; width: 100%; margin-top: 1.5vh; }
+body[data-phase="attract"] .state-attract,
+body[data-phase="ready"] .state-ready,
+body[data-phase="result"] .state-ready,
+body[data-phase="spinning"] .state-spinning,
+body[data-phase="empty"] .state-empty { display: block; }
+body[data-phase="result"] .state-ready { visibility: hidden; }
+
+/* การ์ด QR */
+.qr-card {
+  display: flex;
+  gap: 3vh;
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: 3vh;
+}
+.qr-box {
+  flex: none;
+  width: 24vh;
+  aspect-ratio: 1;
+  border-radius: 16px;
+  background: #fff;
+  padding: 1.4vh;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 0 40px rgba(255, 62, 165, .25);
+}
+.qr-box img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.qr-box.empty {
+  background: var(--surface-raised);
+  border: 2px dashed var(--line-strong);
+  box-shadow: none;
+  color: var(--text-faint);
+  font-size: 1.6vh;
+  text-align: center;
+  line-height: 1.5;
+}
+.qr-caption { font-family: var(--font-thai-head); font-weight: 700; font-size: 3vh; margin-bottom: 1.6vh; }
+.steps { margin: 0; padding: 0; list-style: none; counter-reset: s; display: grid; gap: 1.3vh; }
+.steps li { counter-increment: s; display: flex; align-items: center; gap: 1.4vh; color: var(--text-muted); font-size: 2vh; line-height: 1.35; }
+.steps li::before {
+  content: counter(s);
+  flex: none;
+  width: 3.4vh; height: 3.4vh;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  background: rgba(255, 62, 165, .12);
+  color: var(--pink-light);
+  font: 700 1.7vh/1 var(--font-display);
+}
+
+/* พร้อมหมุน / กำลังหมุน */
+.ready-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: 4vh;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2.4vh;
+}
+.ready-card .chip { font-size: 1.7vh; padding: .8vh 1.8vh; }
+.dot.live { background: var(--success); box-shadow: 0 0 8px var(--success); }
+.ready-title { font-family: var(--font-thai-head); font-weight: 700; font-size: 5.4vh; line-height: 1.15; }
+.spin-btn { font-size: 3.2vh; padding: 2.4vh 7vh; font-family: var(--font-thai-head); font-weight: 700; }
+.hint { color: var(--text-faint); font-size: 1.8vh; }
+.spinning-text { animation: breathe 1s ease-in-out infinite; }
+@keyframes breathe { 50% { opacity: .55; } }
+
+.mini-qr { display: none; margin-top: 2vh; align-items: center; gap: 2vh; color: var(--text-muted); font-size: 1.9vh; }
+body.no-unlock .mini-qr { display: flex; }
+.mini-qr .qr-box { width: 13vh; padding: .8vh; border-radius: 12px; }
+
+/* สั่นเบา ๆ เมื่อกดหมุนตอนยังไม่ได้ปลดล็อก */
+.nudge { animation: nudge .4s; }
+@keyframes nudge { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
+
+/* ---------- ประกาศผล ---------- */
+.result {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(ellipse at center, rgba(28, 28, 38, .92), rgba(11, 11, 16, .97));
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .35s;
+}
+.result.show { opacity: 1; pointer-events: auto; }
+.result-inner { text-align: center; padding: 0 6vw; transform: scale(.85); transition: transform .5s cubic-bezier(.2, 1.4, .4, 1); }
+.result.show .result-inner { transform: scale(1); }
+.result .chip { font-size: 2vh; padding: 1vh 2.4vh; letter-spacing: .06em; }
+.result-head { margin-top: 3vh; font-family: var(--font-thai-head); font-weight: 700; font-size: 5vh; color: var(--text-muted); }
+.result-name {
+  margin-top: 1vh;
+  font-family: var(--font-thai-head);
+  font-weight: 700;
+  font-size: 13vh;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  background: var(--text-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  padding-bottom: .1em;
+}
+.result-sub { margin-top: 2.4vh; color: var(--text-muted); font-size: 2.8vh; }
+.result[data-tier="jackpot"] .result-name { font-size: 15vh; filter: drop-shadow(0 0 30px rgba(255, 62, 165, .6)); animation: glowpulse 1.2s ease-in-out infinite; }
+.result[data-tier="jackpot"] .result-head { color: var(--pink-light); }
+.result[data-tier="none"] .result-name { background: none; color: var(--text); font-size: 9vh; }
+@keyframes glowpulse { 50% { filter: drop-shadow(0 0 60px rgba(255, 62, 165, .9)); } }
+.result-timer { position: absolute; left: 0; right: 0; bottom: 0; height: 6px; background: var(--line); }
+.result-timer span { display: block; height: 100%; width: 100%; background: var(--neon-gradient); transform-origin: left; }
+
+.confetti { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 11; pointer-events: none; }
+
+/* ---------- หน้ารอ (ไม่มีคนเล่นนาน ๆ) ---------- */
+.idle {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: var(--night);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4vh;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .8s;
+}
+.idle.show { opacity: 1; pointer-events: auto; }
+/* วิดีโอโลโก้เป็นพื้นดำสนิท — ให้หน้ารอเป็นดำสนิทด้วย จะได้กลืนกันไม่เห็นขอบวิดีโอ */
+.idle { background: #000; }
+.idle video { width: min(80vw, 140vh); max-height: 72vh; object-fit: contain; }
+.idle-text { font-family: var(--font-thai-head); font-weight: 700; font-size: 4.4vh; display: flex; align-items: center; gap: 2vh; animation: breathe 2.4s ease-in-out infinite; }
+
+/* ---------- คลิกเพื่อเริ่ม ---------- */
+.start {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  background: var(--night);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4vh;
+  text-align: center;
+  cursor: pointer;
+}
+.start.hide { display: none; }
+.start .logo { width: min(40vw, 520px); }
+.start .btn { font-size: 2.6vh; padding: 2vh 5vh; font-family: var(--font-thai-head); }
+.start p { color: var(--text-muted); font-size: 2vh; line-height: 1.6; margin: 0; }
+
+/* ซ่อนเมาส์เมื่อไม่ได้ขยับ ลูกค้าจะไม่เห็นลูกศรเมาส์ค้างบนจอ */
+body.hide-cursor, body.hide-cursor * { cursor: none !important; }
+
+.identify {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3vh;
+  background: rgba(11, 11, 16, .9);
+  font-family: var(--font-thai-head);
+  font-weight: 700;
+  font-size: 10vh;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s;
+}
+.identify.show { opacity: 1; }
+.identify .star { width: 9vh; height: 9vh; }
+
+.dup {
+  position: fixed;
+  inset: 0;
+  z-index: 35;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2vh;
+  padding: 0 8vw;
+  text-align: center;
+  background: var(--night);
+}
+.dup.show { display: flex; }
+.dup-title { font-family: var(--font-thai-head); font-weight: 700; font-size: 5vh; color: #FDA4AF; }
+.dup p { margin: 0; color: var(--text-muted); font-size: 2.2vh; line-height: 1.6; }
+.dup .btn { margin-top: 2vh; font-size: 2.2vh; padding: 1.6vh 4vh; }
+
+/* =====================================================================
+   เอฟเฟกต์แวววาว — ใช้แค่ชมพู/ม่วงตาม CI (ไม่มีทอง ไม่มีเงินโครเมียม)
+   ระดับเอฟเฟกต์: body[data-fx="full" | "lite" | "off"]
+   ===================================================================== */
+
+/* แสงออโรร่าเคลื่อนไหวช้า ๆ ด้านหลัง */
+.aurora { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.aurora span {
+  position: absolute;
+  width: 70vmax;
+  height: 70vmax;
+  border-radius: 50%;
+  opacity: .55;
+  will-change: transform;
+}
+.aurora span:nth-child(1) { background: radial-gradient(circle, rgba(255, 62, 165, .55), transparent 62%); top: -30vmax; right: -20vmax; animation: drift1 26s ease-in-out infinite alternate; }
+.aurora span:nth-child(2) { background: radial-gradient(circle, rgba(139, 92, 246, .55), transparent 62%); bottom: -35vmax; left: -25vmax; animation: drift2 32s ease-in-out infinite alternate; }
+.aurora span:nth-child(3) { background: radial-gradient(circle, rgba(196, 181, 253, .28), transparent 60%); top: 10vh; left: 25vw; width: 50vmax; height: 50vmax; animation: drift3 38s ease-in-out infinite alternate; }
+.aurora span:nth-child(4) { background: radial-gradient(circle, rgba(255, 62, 165, .3), transparent 60%); bottom: -20vmax; right: 10vw; width: 45vmax; height: 45vmax; animation: drift1 30s ease-in-out infinite alternate-reverse; }
+@keyframes drift1 { to { transform: translate(-18vw, 22vh) scale(1.2); } }
+@keyframes drift2 { to { transform: translate(22vw, -18vh) scale(1.15); } }
+@keyframes drift3 { to { transform: translate(-14vw, 16vh) scale(.85); } }
+/* ระหว่างโชว์หน้ารอ ไม่ต้องวาดของข้างหลัง — ประหยัดเครื่อง */
+body.idle-on .stage,
+body.idle-on .aurora,
+body.idle-on .beams,
+body.idle-on .fx { visibility: hidden; }
+
+/* ลำแสงสปอตไลต์ส่ายไปมาจากด้านบน */
+.beams { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.beams span {
+  position: absolute;
+  top: -20vh;
+  width: 16vw;
+  height: 150vh;
+  background: linear-gradient(180deg, rgba(255, 62, 165, .22), rgba(139, 92, 246, .08) 55%, transparent 80%);
+  filter: blur(18px);
+  transform-origin: 50% 0;
+  will-change: transform;
+}
+.beams span:nth-child(1) { left: 18vw; animation: sweep 9s ease-in-out infinite alternate; }
+.beams span:nth-child(2) { left: 62vw; background: linear-gradient(180deg, rgba(139, 92, 246, .24), rgba(255, 62, 165, .06) 55%, transparent 80%); animation: sweep 11s ease-in-out -4s infinite alternate-reverse; }
+@keyframes sweep { from { transform: rotate(-24deg); } to { transform: rotate(24deg); } }
+body[data-phase="spinning"] .beams span { animation-duration: 1.4s; }
+
+.fx { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+
+/* แสงวาบตอนประกาศผล */
+.flash {
+  position: fixed;
+  inset: 0;
+  z-index: 12;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, .9), rgba(255, 62, 165, .5) 30%, transparent 70%);
+  opacity: 0;
+}
+.flash.go { animation: flash .9s ease-out; }
+@keyframes flash { 0% { opacity: 0; } 12% { opacity: 1; } 100% { opacity: 0; } }
+
+/* ลำแสงหมุนรอบวงล้อ */
+.wheel-wrap { isolation: isolate; }
+.rays {
+  position: absolute;
+  inset: -38%;
+  z-index: -1;
+  border-radius: 50%;
+  background: repeating-conic-gradient(from 0deg, rgba(255, 62, 165, .2) 0deg 5deg, transparent 5deg 15deg);
+  -webkit-mask: radial-gradient(circle, #000 22%, transparent 66%);
+          mask: radial-gradient(circle, #000 22%, transparent 66%);
+  animation: rot 80s linear infinite;
+  transition: opacity .6s;
+}
+.rays-2 {
+  background: repeating-conic-gradient(from 7deg, rgba(139, 92, 246, .22) 0deg 3deg, transparent 3deg 20deg);
+  animation: rot 50s linear infinite reverse;
+}
+body[data-phase="spinning"] .rays { opacity: 1; filter: brightness(1.8); }
+body[data-phase="spinning"] .rays-2 { animation-duration: 4s; }
+@keyframes rot { to { transform: rotate(360deg); } }
+
+/* ขอบวงล้อเรืองแสงไล่สีหมุนวน */
+.rim {
+  position: absolute;
+  inset: -1.4%;
+  border-radius: 50%;
+  background: conic-gradient(#FF3EA5, #8B5CF6, #F9A8D4, #8B5CF6, #FF3EA5, #C4B5FD, #FF3EA5);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 1.6%), #000 calc(100% - 1.4%));
+          mask: radial-gradient(farthest-side, transparent calc(100% - 1.6%), #000 calc(100% - 1.4%));
+  will-change: transform;
+  animation: rot 6s linear infinite;
+}
+body[data-phase="spinning"] .rim { animation-duration: 1s; }
+.lights {
+  background: radial-gradient(circle, var(--surface-raised) 60%, var(--surface) 100%);
+  box-shadow: 0 0 24px rgba(255, 62, 165, .7), 0 0 60px rgba(139, 92, 246, .45);
+}
+
+/* เงาแก้วบนวงล้อ (อยู่กับที่ ไม่หมุนตาม) */
+.gloss {
+  position: absolute;
+  inset: 5%;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 1;
+  background:
+    radial-gradient(ellipse 60% 38% at 34% 18%, rgba(255, 255, 255, .26), transparent 70%),
+    radial-gradient(circle at 50% 50%, transparent 58%, rgba(11, 11, 16, .45) 100%);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .06), inset 0 0 40px rgba(255, 62, 165, .25);
+}
+
+/* หัวข้อมีแสงวิ่งผ่าน */
+h1 {
+  background: linear-gradient(100deg, #F4F4F7 0%, #F4F4F7 38%, #F9A8D4 46%, #FFFFFF 50%, #C4B5FD 54%, #F4F4F7 62%, #F4F4F7 100%);
+  background-size: 260% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 6s linear infinite;
+}
+@keyframes shimmer { from { background-position: 130% 0; } to { background-position: -130% 0; } }
+
+/* การ์ดกระจก + ขอบเรืองแสง + แสงวิ่งผ่าน */
+.qr-card, .ready-card {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(160deg, rgba(28, 28, 38, .9), rgba(20, 20, 28, .82));
+  border: 1px solid rgba(255, 255, 255, .1);
+  box-shadow: 0 0 40px rgba(255, 62, 165, .15), inset 0 1px 0 rgba(255, 255, 255, .08);
+}
+.qr-card::after, .ready-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 35%, rgba(255, 255, 255, .09) 48%, rgba(249, 168, 212, .12) 52%, transparent 65%);
+  transform: translateX(-100%);
+  animation: sweepShine 5s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes sweepShine { 0%, 55% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
+/* ปุ่มหมุนเรืองแสงเต้นเป็นจังหวะ + แสงวิ่ง */
+.spin-btn { position: relative; overflow: hidden; animation: btnGlow 1.6s ease-in-out infinite; }
+.spin-btn::after {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 40%;
+  left: -50%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .55), transparent);
+  transform: skewX(-20deg);
+  animation: btnShine 2.4s ease-in-out infinite;
+}
+@keyframes btnGlow { 50% { box-shadow: 0 8px 50px rgba(255, 62, 165, .75), 0 0 80px rgba(139, 92, 246, .45); transform: scale(1.03); } }
+@keyframes btnShine { 0%, 40% { left: -50%; } 100% { left: 130%; } }
+
+/* โลโก้มีแสงเรือง */
+.panel .logo { filter: drop-shadow(0 0 18px rgba(255, 62, 165, .35)); }
+
+/* หน้าประกาศผล: ลำแสงหมุนด้านหลังชื่อรางวัล */
+.result-rays {
+  position: absolute;
+  width: 160vmax;
+  height: 160vmax;
+  left: 50%;
+  top: 50%;
+  margin: -80vmax 0 0 -80vmax;
+  background: repeating-conic-gradient(from 0deg, rgba(255, 62, 165, .18) 0deg 6deg, transparent 6deg 16deg);
+  -webkit-mask: radial-gradient(circle, #000 5%, transparent 45%);
+          mask: radial-gradient(circle, #000 5%, transparent 45%);
+  animation: rot 30s linear infinite;
+  opacity: 0;
+  transition: opacity .6s;
+}
+.result.show .result-rays { opacity: 1; }
+.result[data-tier="none"] .result-rays { display: none; }
+.result[data-tier="jackpot"] .result-rays {
+  background: repeating-conic-gradient(from 0deg, rgba(255, 62, 165, .32) 0deg 6deg, rgba(139, 92, 246, .22) 6deg 12deg, transparent 12deg 18deg);
+  animation-duration: 12s;
+}
+.result-inner { position: relative; }
+
+/* ---------- เวอร์ชันอลังการ ---------- */
+
+/* แสงฮาโลเต้นเป็นจังหวะหลังวงล้อ */
+.halo {
+  position: absolute;
+  inset: -22%;
+  z-index: -2;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 62, 165, .55) 0%, rgba(139, 92, 246, .35) 30%, transparent 62%);
+  animation: halo 3s ease-in-out infinite;
+}
+@keyframes halo { 50% { transform: scale(1.12); opacity: .7; } }
+body[data-phase="spinning"] .halo { animation-duration: .5s; }
+
+/* วงแหวนนีออนเอียงหมุนรอบวงล้อ เหมือนวงโคจร */
+.orbits { position: absolute; inset: -18%; z-index: -1; perspective: 1400px; pointer-events: none; }
+.orbits span {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 62, 165, .55);
+  box-shadow: 0 0 22px rgba(255, 62, 165, .55), inset 0 0 22px rgba(255, 62, 165, .3);
+  animation: orbit 14s linear infinite;
+}
+.orbits span:nth-child(2) { inset: 6%; border-color: rgba(139, 92, 246, .6); box-shadow: 0 0 22px rgba(139, 92, 246, .6), inset 0 0 22px rgba(139, 92, 246, .3); animation: orbit2 18s linear infinite; }
+.orbits span:nth-child(3) { inset: -8%; border-color: rgba(249, 168, 212, .35); border-style: dashed; animation: orbit3 26s linear infinite; }
+@keyframes orbit { from { transform: rotateX(72deg) rotateZ(0); } to { transform: rotateX(72deg) rotateZ(360deg); } }
+@keyframes orbit2 { from { transform: rotateY(70deg) rotateZ(0); } to { transform: rotateY(70deg) rotateZ(-360deg); } }
+@keyframes orbit3 { from { transform: rotateX(60deg) rotateY(25deg) rotateZ(0); } to { transform: rotateX(60deg) rotateY(25deg) rotateZ(360deg); } }
+body[data-phase="spinning"] .orbits span { animation-duration: 2s; }
+
+/* ไฟรอบวงล้อวิ่งไล่กันตอนหมุน */
+body[data-phase="spinning"] .light,
+body[data-phase="spinning"] .light:nth-child(even) {
+  animation: chase .5s linear infinite;
+  animation-delay: calc(var(--i) * -0.0139s);
+}
+@keyframes chase { 0%, 70% { opacity: .2; transform: scale(1); } 85% { opacity: 1; transform: scale(1.8); } 100% { opacity: .2; transform: scale(1); } }
+body[data-phase="ready"] .light { animation-duration: .8s; }
+body[data-phase="ready"] .light:nth-child(even) { animation-delay: .4s; }
+
+/* ตอนหมุน: ทั้งจอสว่างวาบเป็นจังหวะ */
+body[data-phase="spinning"] .aurora span { opacity: .85; }
+body[data-phase="spinning"] .stage::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(circle at 30% 50%, rgba(255, 62, 165, .18), transparent 60%);
+  animation: strobe .35s ease-in-out infinite alternate;
+}
+@keyframes strobe { from { opacity: .2; } to { opacity: 1; } }
+
+/* หน้าประกาศผล: คลื่นแสงกระจายออก */
+.shock { position: absolute; inset: 0; pointer-events: none; display: grid; place-items: center; }
+.shock span {
+  position: absolute;
+  width: 20vmin;
+  height: 20vmin;
+  border-radius: 50%;
+  border: 4px solid rgba(255, 62, 165, .9);
+  box-shadow: 0 0 40px rgba(255, 62, 165, .8), inset 0 0 40px rgba(139, 92, 246, .6);
+  opacity: 0;
+}
+.result.show .shock span { animation: shock 1.4s cubic-bezier(.1, .7, .3, 1) forwards; }
+.result.show .shock span:nth-child(2) { animation-delay: .18s; border-color: rgba(139, 92, 246, .9); }
+.result.show .shock span:nth-child(3) { animation-delay: .36s; border-color: rgba(249, 168, 212, .8); }
+@keyframes shock { 0% { transform: scale(.2); opacity: 1; } 100% { transform: scale(9); opacity: 0; } }
+.result[data-tier="none"] .shock { display: none; }
+
+/* แจ็คพอต: จอสั่น */
+.result.show[data-tier="jackpot"] .result-inner { animation: shake .7s .1s; }
+@keyframes shake {
+  10%, 50%, 90% { transform: translate(-10px, 4px) rotate(-1deg); }
+  30%, 70% { transform: translate(10px, -4px) rotate(1deg); }
+}
+.result-name { animation: popIn .7s cubic-bezier(.2, 1.6, .4, 1) both; }
+.result:not(.show) .result-name { animation: none; }
+@keyframes popIn { from { transform: scale(.3); opacity: 0; letter-spacing: .2em; } to { transform: scale(1); opacity: 1; } }
+
+/* ---------- ระดับเอฟเฟกต์ ---------- */
+body[data-fx="lite"] .orbits,
+body[data-fx="off"] .orbits,
+body[data-fx="off"] .halo,
+body[data-fx="off"] .shock,
+body[data-fx="off"] .stage::before { display: none; }
+body[data-fx="lite"] .beams,
+body[data-fx="lite"] .rays-2 { display: none; }
+body[data-fx="lite"] .aurora span { animation: none; }
+body[data-fx="off"] .aurora,
+body[data-fx="off"] .beams,
+body[data-fx="off"] .fx,
+body[data-fx="off"] .rays,
+body[data-fx="off"] .result-rays { display: none; }
+body[data-fx="off"] .rim,
+body[data-fx="off"] h1,
+body[data-fx="off"] .spin-btn,
+body[data-fx="off"] .spin-btn::after,
+body[data-fx="off"] .qr-card::after,
+body[data-fx="off"] .ready-card::after { animation: none; }
+
+/* จอแนวตั้งหรือจอเล็ก: วางซ้อนกันแทน */
+@media (max-aspect-ratio: 1/1) {
+  .stage { grid-template-columns: 1fr; grid-template-rows: auto 1fr; gap: 3vh; padding: 4vh 5vw; }
+  .wheel-area { order: 2; }
+  .wheel-wrap { width: min(88vw, 56vh); }
+  .panel { align-items: center; text-align: center; }
+  .panel .logo { width: min(50vw, 300px); margin-bottom: 0; }
+  h1 { font-size: 4.4vh; }
+  .qr-card { flex-direction: column; }
+}

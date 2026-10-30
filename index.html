@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>วงล้อ LIGHT UP — เริ่มต้น</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/base.css">
+  <style>
+    body { min-height: 100vh; display: grid; place-items: center; padding: 40px 16px; }
+    .wrap { position: relative; z-index: 1; width: min(860px, 100%); display: flex; flex-direction: column; align-items: center; gap: 28px; text-align: center; }
+    .logo { width: min(320px, 70vw); }
+    h1 { font-family: var(--font-thai-head); font-weight: 700; font-size: clamp(28px, 5vw, 44px); margin: 0; }
+    .lead { color: var(--text-muted); margin: 0; line-height: 1.6; }
+    .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 100%; }
+    .card { background: var(--surface); border: 1px solid var(--line); border-radius: 24px; padding: 28px; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; text-align: left; transition: box-shadow .2s; }
+    .card:hover { box-shadow: 0 0 40px rgba(255, 62, 165, .15); }
+    .card h2 { font-family: var(--font-thai-head); font-size: 22px; margin: 4px 0 0; }
+    .card p { color: var(--text-muted); margin: 0 0 8px; line-height: 1.55; font-size: 14px; }
+    .card .btn { margin-top: auto; }
+    .how { width: 100%; background: var(--surface); border: 1px solid var(--line); border-radius: 24px; padding: 24px 28px; text-align: left; }
+    .how h3 { font-family: var(--font-thai-head); margin: 0 0 12px; font-size: 18px; }
+    .how ol { margin: 0; padding-left: 20px; color: var(--text-muted); line-height: 1.9; font-size: 14px; }
+    .how b { color: var(--text); }
+    @media (max-width: 640px) { .cards { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body class="glow-bg">
+  <div class="wrap">
+    <img class="logo" src="assets/logo-white.png" alt="LIGHT UP MCN">
+    <span class="chip chip-pink"><span class="star"></span> LUCKY WHEEL · บูทกิจกรรม</span>
+    <h1>เกม<span class="grad-text">วงล้อ</span>ลุ้นรางวัล</h1>
+    <p class="lead">เปิด 2 หน้าต่างจากคอมเครื่องเดียว: จอทีวีสำหรับลูกค้า และหน้าทีมงานบนจอโน้ตบุ๊ก<br>ทำงานได้โดยไม่ต้องใช้อินเทอร์เน็ต</p>
+
+    <div class="cards">
+      <div class="card">
+        <span class="chip chip-violet">จอที่ 1 · ทีวี</span>
+        <h2>จอวงล้อ (ลูกค้าเห็น)</h2>
+        <p>ลากหน้าต่างนี้ไปไว้ที่จอทีวี แล้วคลิก "เริ่มใช้งานจอทีวี" เพื่อเปิดเสียงและแสดงผลเต็มจอ</p>
+        <button class="btn btn-primary" onclick="if (!LW.tvAlive() || confirm('จอวงล้อเปิดอยู่แล้ว ต้องการเปิดใหม่ไหม?')) LW.openTv()">เปิดจอวงล้อ</button>
+      </div>
+      <div class="card">
+        <span class="chip">จอที่ 2 · โน้ตบุ๊ก</span>
+        <h2>หน้าทีมงาน</h2>
+        <p>ปลดล็อกสิทธิ์หมุน ดูของรางวัลคงเหลือ ตั้งค่ารางวัล และดาวน์โหลดประวัติ (ต้องใส่ PIN)</p>
+        <a class="btn" href="control.html">เปิดหน้าทีมงาน</a>
+      </div>
+    </div>
+
+    <div class="how">
+      <h3>วิธีใช้ในวันงาน</h3>
+      <ol>
+        <li>ต่อทีวีกับคอม แล้วตั้งค่าจอเป็น <b>"ขยายจอ" (Extend)</b> — กดปุ่ม <b>Windows + P</b></li>
+        <li>กด <b>เปิดจอวงล้อ</b> ลากหน้าต่างไปไว้ที่ทีวี แล้วคลิกหนึ่งครั้ง (เต็มจอ + เปิดเสียง)</li>
+        <li>กด <b>เปิดหน้าทีมงาน</b> บนโน้ตบุ๊ก ใส่ PIN</li>
+        <li>ลูกค้าสแกน QR ร่วมกิจกรรม แล้วโชว์มือถือ → ทีมงานกด <b>ปลดล็อกสิทธิ์หมุน</b> (หรือกด <b>U</b>)</li>
+        <li>กด <b>หมุนเลย</b> (หรือกด <b>Space</b>) → ประกาศผล → แจกรางวัล</li>
+      </ol>
+    </div>
+  </div>
+  <script src="js/store.js"></script>
+</body>
+</html>

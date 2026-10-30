@@ -1,0 +1,117 @@
+/* ค่าสีและฟอนต์ตาม CI ของ LIGHT UP MCN (Midnight Neon) */
+:root {
+  --night: #0B0B10;
+  --surface: #14141C;
+  --surface-raised: #1C1C26;
+  --text: #F4F4F7;
+  --text-muted: #A1A1AA;
+  --text-faint: #71717A;
+  --pink: #FF3EA5;
+  --pink-light: #F9A8D4;
+  --violet: #8B5CF6;
+  --violet-light: #C4B5FD;
+  --line: rgba(255, 255, 255, 0.08);
+  --line-strong: rgba(255, 255, 255, 0.16);
+  --neon-gradient: linear-gradient(135deg, #FF3EA5, #8B5CF6);
+  --text-gradient: linear-gradient(90deg, #F9A8D4, #C4B5FD);
+  --success: #34D399;
+  --danger: #F43F5E;
+  --cyan: #22D3EE;
+
+  /* ถ้าไม่มีอินเทอร์เน็ต จะใช้ฟอนต์ไทยที่มีในเครื่อง Windows แทน */
+  --font-display: 'Unbounded', 'IBM Plex Sans Thai', 'Leelawadee UI', Tahoma, sans-serif;
+  --font-thai-head: 'IBM Plex Sans Thai', 'Leelawadee UI', Tahoma, sans-serif;
+  --font-body: 'Plus Jakarta Sans', 'IBM Plex Sans Thai', 'Leelawadee UI', Tahoma, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  background: var(--night);
+  color: var(--text);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* แสงเรืองชมพูมุมบนขวา + ม่วงฝั่งซ้าย */
+.glow-bg::before,
+.glow-bg::after {
+  content: '';
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(90px);
+  pointer-events: none;
+  z-index: 0;
+}
+.glow-bg::before {
+  width: 46vw; height: 46vw;
+  top: -18vw; right: -12vw;
+  background: rgba(255, 62, 165, 0.25);
+}
+.glow-bg::after {
+  width: 40vw; height: 40vw;
+  top: 30vh; left: -20vw;
+  background: rgba(139, 92, 246, 0.20);
+}
+
+.grad-text {
+  background: var(--text-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ปุ่ม */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5em;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  background: transparent;
+  color: var(--text);
+  font: 600 15px/1 var(--font-body);
+  padding: 12px 22px;
+  cursor: pointer;
+  transition: transform .15s, box-shadow .2s, background .2s, opacity .2s;
+  white-space: nowrap;
+}
+.btn:hover { background: rgba(255, 255, 255, 0.05); }
+.btn:active { transform: scale(.97); }
+.btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+.btn-primary {
+  border: 0;
+  background: var(--neon-gradient);
+  box-shadow: 0 8px 30px rgba(255, 62, 165, 0.35);
+}
+.btn-primary:hover { background: var(--neon-gradient); box-shadow: 0 8px 40px rgba(255, 62, 165, 0.5); }
+.btn-danger { border-color: rgba(244, 63, 94, .5); color: #FDA4AF; }
+.btn-danger:hover { background: rgba(244, 63, 94, .1); }
+.btn-sm { padding: 8px 14px; font-size: 13px; }
+.btn-icon { padding: 8px; width: 34px; height: 34px; font-size: 14px; }
+
+/* ป้าย */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+.chip .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-faint); }
+.chip-pink { background: rgba(255, 62, 165, 0.12); color: var(--pink-light); }
+.chip-violet { background: rgba(139, 92, 246, 0.16); color: var(--violet-light); }
+
+.star {
+  display: inline-block;
+  width: 1em; height: 1em;
+  background: var(--pink);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 0C12.9 7.2 16.8 11.1 24 12C16.8 12.9 12.9 16.8 12 24C11.1 16.8 7.2 12.9 0 12C7.2 11.1 11.1 7.2 12 0Z'/%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 0C12.9 7.2 16.8 11.1 24 12C16.8 12.9 12.9 16.8 12 24C11.1 16.8 7.2 12.9 0 12C7.2 11.1 11.1 7.2 12 0Z'/%3E%3C/svg%3E") center / contain no-repeat;
+}

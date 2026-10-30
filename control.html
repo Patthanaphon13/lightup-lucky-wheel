@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>วงล้อ LIGHT UP — หน้าทีมงาน</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Unbounded:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/control.css">
+</head>
+<body class="glow-bg">
+
+  <!-- ใส่ PIN ก่อนเข้า -->
+  <div class="pin-gate" id="pinGate">
+    <form class="pin-card" id="pinForm">
+      <img src="assets/logo-white.png" alt="LIGHT UP MCN" class="pin-logo">
+      <h2>หน้าทีมงาน</h2>
+      <p>ใส่รหัส PIN เพื่อเข้าใช้งาน</p>
+      <input id="pinInput" type="password" inputmode="numeric" autocomplete="off" placeholder="••••" aria-label="รหัส PIN">
+      <div class="pin-error" id="pinError"></div>
+      <button class="btn btn-primary" type="submit">เข้าใช้งาน</button>
+      <small>รหัสเริ่มต้นคือ 1234 — เปลี่ยนได้ในแท็บตั้งค่า</small>
+    </form>
+  </div>
+
+  <div class="app">
+    <header class="topbar">
+      <img src="assets/logo-white.png" alt="LIGHT UP MCN" class="top-logo">
+      <nav class="tabs" id="tabs">
+        <button data-tab="control" class="active">ควบคุม</button>
+        <button data-tab="prizes">รางวัล</button>
+        <button data-tab="settings">ตั้งค่า</button>
+        <button data-tab="history">ประวัติ</button>
+      </nav>
+      <div class="top-right">
+        <span class="chip" id="tvStatus"><span class="dot"></span> จอทีวี</span>
+        <button class="btn btn-sm" id="openTv">เปิดจอทีวี</button>
+      </div>
+    </header>
+
+    <!-- เตือนเมื่อจอไม่ได้ตั้งเป็นแบบขยาย (Extend) -->
+    <div class="screen-warn" id="screenWarn">
+      <div class="screen-warn-icon">!</div>
+      <div>
+        <strong>ระวัง: ลูกค้าอาจเห็นหน้านี้</strong>
+        <p>ตอนนี้คอมใช้จอเดียว หรือต่อทีวีแบบ "ทำซ้ำ" (ทีวีแสดงภาพเดียวกับจอนี้) — กด <kbd>Windows</kbd> + <kbd>P</kbd> แล้วเลือก <b>ขยาย (Extend)</b></p>
+      </div>
+    </div>
+
+    <!-- ===== ควบคุม ===== -->
+    <section class="tab-page active" data-page="control">
+      <div class="control-grid">
+        <div class="card action-card">
+          <div class="label">สถานะจอทีวี</div>
+          <div class="phase-text" id="phaseText">—</div>
+          <button class="btn btn-primary big-action" id="bigAction">ปลดล็อกสิทธิ์หมุน</button>
+          <div class="action-row">
+            <button class="btn btn-sm" id="spinNow">หมุนเลย</button>
+            <button class="btn btn-sm" id="lockBtn">ยกเลิกสิทธิ์</button>
+            <button class="btn btn-sm" id="closeResult">ปิดหน้าประกาศผล</button>
+          </div>
+          <div class="kbd-hint">คีย์ลัด: <kbd>U</kbd> ปลดล็อก · <kbd>Space</kbd> หมุน (ใช้ได้เมื่ออยู่ในแท็บควบคุม)</div>
+        </div>
+
+        <div class="card">
+          <div class="label">ผลล่าสุด</div>
+          <div class="last-result" id="lastResult">ยังไม่มีการหมุน</div>
+          <div class="stats">
+            <div><span class="num" id="statSpins">0</span><span>หมุนแล้ว (ครั้ง)</span></div>
+            <div><span class="num" id="statGiven">0</span><span>แจกรางวัลแล้ว (ชิ้น)</span></div>
+          </div>
+        </div>
+
+        <div class="card wide">
+          <div class="card-head">
+            <div class="label">ของรางวัลคงเหลือ</div>
+            <span class="muted small">อัปเดตทันทีทุกครั้งที่หมุน</span>
+          </div>
+          <div class="stock-list" id="stockList"></div>
+        </div>
+
+        <div class="card wide screen-card">
+          <div>
+            <div class="label">เช็กจอก่อนเปิดบูท</div>
+            <p class="screen-line" id="screenLine">—</p>
+          </div>
+          <button class="btn btn-sm" id="identify">ทดสอบ: จอไหนคือทีวี?</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== รางวัล ===== -->
+    <section class="tab-page" data-page="prizes">
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <h3>รายการรางวัล</h3>
+            <p class="muted small">ทุกช่องบนวงล้อมีขนาดเท่ากัน แต่ "โอกาส" กำหนดว่าแต่ละรางวัลออกบ่อยแค่ไหน · เว้นช่อง "จำนวน" ว่างไว้ = ไม่จำกัด</p>
+          </div>
+          <button class="btn btn-sm" id="addPrize">+ เพิ่มรางวัล</button>
+        </div>
+        <div class="table-wrap">
+          <table class="prize-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>ชื่อรางวัล</th>
+                <th>ประเภท</th>
+                <th title="ตัวเลขยิ่งน้อย ยิ่งออกยาก">โอกาส</th>
+                <th>โอกาสจริง</th>
+                <th>จำนวน</th>
+                <th>แจก / เหลือ</th>
+                <th title="รางวัลนี้จะยังไม่ออก จนกว่าจะหมุนครบจำนวนครั้งนี้">ออกได้หลังครั้งที่</th>
+                <th>สีช่อง</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="prizeRows"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <h3>ทดลองสุ่ม</h3>
+            <p class="muted small">จำลองการหมุนหลายครั้งตามค่าที่ตั้งไว้ (รวมที่ยังไม่บันทึก) โดยไม่บันทึกลงประวัติจริง และไม่หักของรางวัลจริง</p>
+          </div>
+          <div class="sim-controls">
+            <select id="simTimes">
+              <option value="100">100 ครั้ง</option>
+              <option value="500" selected>500 ครั้ง</option>
+              <option value="1000">1,000 ครั้ง</option>
+            </select>
+            <button class="btn btn-sm" id="simulate">ทดลอง</button>
+          </div>
+        </div>
+        <div class="sim-result" id="simResult"></div>
+      </div>
+    </section>
+
+    <!-- ===== ตั้งค่า ===== -->
+    <section class="tab-page" data-page="settings">
+      <div class="settings-grid">
+        <div class="card">
+          <h3>ข้อความบนจอทีวี</h3>
+          <label>หัวข้อใหญ่<input data-set="title" type="text"></label>
+          <label>คำอธิบาย<input data-set="subtitle" type="text"></label>
+          <label>ข้อความใต้ QR<input data-set="qrCaption" type="text"></label>
+          <label>ขั้นตอนที่ 1<input data-step="0" type="text"></label>
+          <label>ขั้นตอนที่ 2<input data-step="1" type="text"></label>
+          <label>ขั้นตอนที่ 3<input data-step="2" type="text"></label>
+        </div>
+
+        <div class="card">
+          <h3>รูป QR</h3>
+          <p class="muted small">อัปโหลดรูป QR ที่ทำไว้ (PNG/JPG) เช่น QR ของ LINE OA, IG หรือ Google Form</p>
+          <div class="qr-upload">
+            <div class="qr-preview" id="qrPreview"></div>
+            <div class="qr-actions">
+              <label class="btn btn-sm file-btn">เลือกรูป<input type="file" id="qrFile" accept="image/*"></label>
+              <button class="btn btn-sm btn-danger" id="qrRemove">ลบรูป</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>การเล่น</h3>
+          <label class="switch"><input data-set="requireUnlock" type="checkbox"><span>ต้องให้ทีมงานปลดล็อกก่อนหมุน</span></label>
+          <label class="switch"><input data-set="sound" type="checkbox"><span>เปิดเสียง</span></label>
+          <label>เอฟเฟกต์พื้นหลังจอทีวี
+            <select data-set="fx">
+              <option value="full">เต็ม (แวววาวที่สุด)</option>
+              <option value="lite">เบา (ถ้าวงล้อหมุนกระตุก)</option>
+              <option value="off">ปิด</option>
+            </select>
+          </label>
+          <label>เวลาหมุน (วินาที)<input data-set="spinSeconds" type="number" min="2" max="15"></label>
+          <label>แสดงหน้าประกาศผลนาน (วินาที)<input data-set="resultSeconds" type="number" min="3" max="60"></label>
+          <label>โชว์วิดีโอโลโก้เมื่อไม่มีคนเล่นนาน (วินาที, 0 = ปิด)<input data-set="idleSeconds" type="number" min="0" max="600"></label>
+        </div>
+
+        <div class="card">
+          <h3>ความปลอดภัยและสำรองข้อมูล</h3>
+          <label>รหัส PIN หน้าทีมงาน<input data-set="pin" type="text" inputmode="numeric"></label>
+          <div class="btn-col">
+            <button class="btn btn-sm" id="exportConfig">ดาวน์โหลดไฟล์ตั้งค่า (สำรอง)</button>
+            <label class="btn btn-sm file-btn">นำเข้าไฟล์ตั้งค่า<input type="file" id="importConfig" accept=".json,application/json"></label>
+            <button class="btn btn-sm btn-danger" id="resetConfig">คืนค่าตัวอย่างทั้งหมด</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== ประวัติ ===== -->
+    <section class="tab-page" data-page="history">
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <h3>ประวัติการหมุน</h3>
+            <p class="muted small" id="historyCount"></p>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-sm" id="exportCsv">ดาวน์โหลด Excel (CSV)</button>
+            <button class="btn btn-sm btn-danger" id="clearLog">ล้างประวัติ (เริ่มนับใหม่)</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="history-table">
+            <thead><tr><th>ครั้งที่</th><th>เวลา</th><th>รางวัล</th><th>ประเภท</th></tr></thead>
+            <tbody id="historyRows"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- แถบบันทึก -->
+    <div class="save-bar" id="saveBar">
+      <span>มีการแก้ไขที่ยังไม่บันทึก</span>
+      <button class="btn btn-sm" id="discard">ยกเลิก</button>
+      <button class="btn btn-sm btn-primary" id="save">บันทึก</button>
+    </div>
+    <div class="toast" id="toast"></div>
+  </div>
+
+  <script src="js/store.js"></script>
+  <script src="js/control.js"></script>
+</body>
+</html>
