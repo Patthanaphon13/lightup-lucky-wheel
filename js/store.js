@@ -26,7 +26,7 @@ const LW = (() => {
     { file: 'assets/prizes/hair-clips.jpg', label: 'กิ๊บ', kind: 'photo' },
     { file: 'assets/prizes/waist-hook-star.png', label: 'ตะขอเอวดาว 4 แฉก', kind: 'cutout' },
     { file: 'assets/prizes/keychain-headphones.png', label: 'พวงกุญแจหูฟัง', kind: 'cutout' },
-    { file: 'assets/prizes/keychain-star.png', label: 'พวงกุญแจดาว 4 แฉก', kind: 'cutout' },
+    { file: 'assets/prizes/keychain-star.png', label: 'พวงกุญแจดาว 4 แฉก', kind: 'cutout', aliases: ['พวงกุญแจธรรมดา'] },
     { file: 'assets/prizes/necklace-double.png', label: 'สร้อยคู่', kind: 'cutout' },
     { file: 'assets/prizes/necklace-sparkle.png', label: 'สร้อยดาว 4 แฉก', kind: 'cutout' },
     { file: 'assets/prizes/necklace-star.png', label: 'สร้อยดาว', kind: 'cutout' },
@@ -43,7 +43,7 @@ const LW = (() => {
     if (prize.image) return PRIZE_IMAGES.find((m) => m.file === prize.image) || { file: prize.image, label: '', kind: 'cutout' };
     if (prize.tier === 'none' || prize.tier === 'again') return null;
     const name = simplify(prize.name);
-    const exact = PRIZE_IMAGES.find((m) => simplify(m.label) === name);
+    const exact = PRIZE_IMAGES.find((m) => [m.label, ...(m.aliases || [])].some((l) => simplify(l) === name));
     if (exact) return exact;
     // ชื่อรางวัลมีชื่อรูปอยู่ข้างใน เลือกอันที่ชื่อยาวที่สุด (เช่น "สร้อยดาว 4 แฉก" ก่อน "สร้อยดาว")
     const inside = PRIZE_IMAGES
