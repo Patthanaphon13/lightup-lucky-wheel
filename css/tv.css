@@ -489,15 +489,15 @@ h1 {
   background: repeating-conic-gradient(from 0deg, rgba(255, 62, 165, .18) 0deg 6deg, transparent 6deg 16deg);
   -webkit-mask: radial-gradient(circle, #000 5%, transparent 45%);
           mask: radial-gradient(circle, #000 5%, transparent 45%);
-  animation: rot 30s linear infinite;
   opacity: 0;
   transition: opacity .6s;
 }
 .result.show .result-rays { opacity: 1; }
-.result[data-tier="none"] .result-rays { display: none; }
+/* มีรูปรางวัล: ใช้ลำแสงหลังรูปอย่างเดียว ไม่ซ้อนสองชุดให้ลายตา */
+.result[data-tier="none"] .result-rays,
+.result.has-img .result-rays { display: none; }
 .result[data-tier="jackpot"] .result-rays {
   background: repeating-conic-gradient(from 0deg, rgba(255, 62, 165, .32) 0deg 6deg, rgba(139, 92, 246, .22) 6deg 12deg, transparent 12deg 18deg);
-  animation-duration: 12s;
 }
 .result-inner { position: relative; }
 
@@ -613,9 +613,8 @@ body[data-phase="spinning"] .stage::before {
   background: repeating-conic-gradient(from 0deg, rgba(255, 255, 255, .28) 0deg 4deg, transparent 4deg 14deg);
   -webkit-mask: radial-gradient(circle, #000 18%, transparent 62%);
           mask: radial-gradient(circle, #000 18%, transparent 62%);
-  animation: rot 18s linear infinite;
 }
-.result[data-tier="jackpot"] .rp-rays { background: repeating-conic-gradient(from 0deg, rgba(255, 255, 255, .4) 0deg 4deg, rgba(255, 62, 165, .25) 4deg 8deg, transparent 8deg 14deg); animation-duration: 8s; }
+.result[data-tier="jackpot"] .rp-rays { background: repeating-conic-gradient(from 0deg, rgba(255, 255, 255, .4) 0deg 4deg, rgba(255, 62, 165, .25) 4deg 8deg, transparent 8deg 14deg); }
 
 /* ไฟส่องหลังสว่าง ทำให้เครื่องประดับเงินเด่นชัดบนจอมืด */
 .rp-glow {
