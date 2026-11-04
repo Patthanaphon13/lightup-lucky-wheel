@@ -100,24 +100,26 @@ const LW = (() => {
       idleSeconds: 60,
       fx: 'full', // เอฟเฟกต์พื้นหลัง: full = เต็ม, lite = เบา (คอมสเปกต่ำ), off = ปิด
     },
-    // ของรางวัลจริงของบูท (รูปจับคู่จากชื่อเอง) — จำนวนของยังไม่ได้ใส่ = ไม่จำกัด ตั้งได้ในหน้าทีมงาน
+    // ของรางวัลจริงของบูท (รูปจับคู่จากชื่อเอง) · stock = จำนวนของที่มีจริง
     prizes: [
-      { id: 'j1',  name: 'สร้อยรวมดาว 4 แฉก', tier: 'jackpot', weight: 1,  stock: null, minSpin: 0, color: '' },
-      { id: 'j2',  name: 'พวงกุญแจธรรมดา',    tier: 'common',  weight: 20, stock: null, minSpin: 0, color: '' },
-      { id: 'j3',  name: 'สร้อยดาว',          tier: 'rare',    weight: 4,  stock: null, minSpin: 0, color: '' },
-      { id: 'j4',  name: 'กิ๊บ',              tier: 'common',  weight: 15, stock: null, minSpin: 0, color: '' },
+      { id: 'j1',  name: 'สร้อยรวมดาว 4 แฉก', tier: 'jackpot', weight: 1,  stock: 10,   minSpin: 0, color: '' },
+      { id: 'j2',  name: 'พวงกุญแจธรรมดา',    tier: 'common',  weight: 20, stock: 20,   minSpin: 0, color: '' },
+      { id: 'j3',  name: 'สร้อยดาว',          tier: 'rare',    weight: 4,  stock: 6,    minSpin: 0, color: '' },
+      { id: 'j4',  name: 'กิ๊บ',              tier: 'common',  weight: 15, stock: 151,  minSpin: 0, color: '' },
       { id: 'j5',  name: 'ขอบคุณที่ร่วมสนุก',  tier: 'none',    weight: 20, stock: null, minSpin: 0, color: '' },
-      { id: 'j6',  name: 'แหวน',              tier: 'common',  weight: 12, stock: null, minSpin: 0, color: '' },
-      { id: 'j7',  name: 'สร้อยคู่',           tier: 'rare',    weight: 3,  stock: null, minSpin: 0, color: '' },
-      { id: 'j8',  name: 'พวงกุญแจหูฟัง',      tier: 'common',  weight: 15, stock: null, minSpin: 0, color: '' },
+      { id: 'j6',  name: 'แหวน',              tier: 'common',  weight: 12, stock: 134,  minSpin: 0, color: '' },
+      { id: 'j7',  name: 'สร้อยคู่',           tier: 'rare',    weight: 3,  stock: 20,   minSpin: 0, color: '' },
+      { id: 'j8',  name: 'พวงกุญแจหูฟัง',      tier: 'common',  weight: 15, stock: 20,   minSpin: 0, color: '' },
       { id: 'j9',  name: 'หมุนอีกครั้ง',        tier: 'again',   weight: 8,  stock: null, minSpin: 0, color: '' },
-      { id: 'j10', name: 'ตะขอเอวดาว 4 แฉก',  tier: 'rare',    weight: 5,  stock: null, minSpin: 0, color: '' },
-      { id: 'j11', name: 'สร้อยดาว 4 แฉก',    tier: 'rare',    weight: 4,  stock: null, minSpin: 0, color: '' },
+      { id: 'j10', name: 'ตะขอเอวดาว 4 แฉก',  tier: 'rare',    weight: 5,  stock: 40,   minSpin: 0, color: '' },
+      { id: 'j11', name: 'สร้อยดาว 4 แฉก',    tier: 'rare',    weight: 4,  stock: 10,   minSpin: 0, color: '' },
     ],
   };
 
-  // รายการรางวัลตัวอย่างชุดแรก (สติกเกอร์ ถุงผ้า ...) — เบราว์เซอร์ที่ยังค้างชุดนี้อยู่ จะเปลี่ยนเป็นรางวัลจริงให้เอง
+  // รายการรางวัลค่าเริ่มต้นรุ่นก่อน ๆ — เบราว์เซอร์ที่ยังค้างชุดเก่าที่ไม่มีใครแก้ จะอัปเดตเป็นชุดล่าสุดให้เอง
+  const prizeSig = (ps) => ps.map((p) => `${p.name}:${p.tier}:${p.weight}:${p.stock}:${p.minSpin}`).join('|');
   const OLD_SAMPLE = 'ขอบคุณที่ร่วมสนุก|สติกเกอร์|พวงกุญแจ|หมุนอีกครั้ง|ถุงผ้า|แก้วน้ำ|เสื้อยืด|หูฟังไร้สาย';
+  const OLD_DEFAULT_NO_STOCK = prizeSig(DEFAULT_CONFIG.prizes.map((p) => ({ ...p, stock: null })));
 
   const clone = (o) => JSON.parse(JSON.stringify(o));
 
@@ -160,8 +162,11 @@ const LW = (() => {
 
   function getConfig() {
     const cfg = normalize(read(K.config, null));
-    if (cfg.prizes.map((p) => p.name).join('|') === OLD_SAMPLE) {
-      cfg.prizes = clone(DEFAULT_CONFIG.prizes);
+    const isOld = cfg.prizes.map((p) => p.name).join('|') === OLD_SAMPLE || prizeSig(cfg.prizes) === OLD_DEFAULT_NO_STOCK;
+    if (isOld) {
+      // เก็บรูปและสีช่องที่เคยเลือกเองไว้
+      const kept = Object.fromEntries(cfg.prizes.map((p) => [p.id, p]));
+      cfg.prizes = clone(DEFAULT_CONFIG.prizes).map((p) => ({ ...p, color: kept[p.id]?.color || '', image: kept[p.id]?.image || '' }));
       write(K.config, cfg);
     }
     return cfg;
