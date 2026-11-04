@@ -26,7 +26,7 @@ const LW = (() => {
     { file: 'assets/prizes/hair-clips.jpg', label: 'กิ๊บ', kind: 'photo' },
     { file: 'assets/prizes/waist-hook-star.png', label: 'ตะขอเอวดาว 4 แฉก', kind: 'cutout' },
     { file: 'assets/prizes/keychain-headphones.png', label: 'พวงกุญแจหูฟัง', kind: 'cutout' },
-    { file: 'assets/prizes/keychain-star.png', label: 'พวงกุญแจดาว 4 แฉก', kind: 'cutout', aliases: ['พวงกุญแจธรรมดา'] },
+    { file: 'assets/prizes/keychain-star.png?v=2', label: 'พวงกุญแจดาว 4 แฉก', kind: 'cutout', aliases: ['พวงกุญแจธรรมดา'] },
     { file: 'assets/prizes/necklace-double.png', label: 'สร้อยคู่', kind: 'cutout' },
     { file: 'assets/prizes/necklace-sparkle.png', label: 'สร้อยดาว 4 แฉก', kind: 'cutout' },
     { file: 'assets/prizes/necklace-star.png', label: 'สร้อยดาว', kind: 'cutout' },
