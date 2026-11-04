@@ -427,6 +427,18 @@
     const el = $('#result');
     const txt = RESULT_TEXT[prize.tier] || RESULT_TEXT.common;
     el.dataset.tier = prize.tier;
+    const pic = LW.prizeImage(prize);
+    el.classList.toggle('has-img', !!pic);
+    if (pic) {
+      const box = $('#resultPrize');
+      box.dataset.kind = pic.kind;
+      box.style.setProperty('--img', `url("${pic.file}")`);
+      $('#resultImg').src = pic.file;
+      // เล่นแอนิเมชันเปิดตัวรูปใหม่ทุกครั้ง
+      box.classList.remove('pop');
+      void box.offsetWidth;
+      box.classList.add('pop');
+    }
     $('#resultHead').textContent = txt.head;
     $('#resultName').textContent = prize.name;
     $('#resultSub').textContent = txt.sub;
@@ -499,6 +511,15 @@
     wheelPrizes = cfg.prizes;
     applyTexts();
     draw();
+    preloadImages();
+  }
+
+  // โหลดรูปรางวัลไว้ก่อน หน้าประกาศผลจะได้ขึ้นรูปทันที
+  function preloadImages() {
+    cfg.prizes.forEach((p) => {
+      const pic = LW.prizeImage(p);
+      if (pic) new Image().src = pic.file;
+    });
   }
 
   LW.onChange((key, value) => {
@@ -609,6 +630,7 @@
   // ---------- เริ่มต้น ----------
   buildLights();
   applyTexts();
+  preloadImages();
   setRotation(0);
   draw();
   if (LW.tvAlive() && localStorage.getItem(LW.K.owner)) {

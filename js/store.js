@@ -20,6 +20,37 @@ const LW = (() => {
     jackpot: { label: 'แจ็คพอต',      short: 'แจ็คพอต' },
   };
 
+  // รูปของรางวัล (อยู่ใน assets/prizes)
+  //   cutout = ตัดพื้นหลังแล้ว ลอยอยู่บนจอ · photo = รูปทั้งภาพ ใส่กรอบเรืองแสง
+  const PRIZE_IMAGES = [
+    { file: 'assets/prizes/hair-clips.jpg', label: 'กิ๊บ', kind: 'photo' },
+    { file: 'assets/prizes/waist-hook-star.png', label: 'ตะขอเอวดาว 4 แฉก', kind: 'cutout' },
+    { file: 'assets/prizes/keychain-headphones.png', label: 'พวงกุญแจหูฟัง', kind: 'cutout' },
+    { file: 'assets/prizes/keychain-star.png', label: 'พวงกุญแจดาว 4 แฉก', kind: 'cutout' },
+    { file: 'assets/prizes/necklace-double.png', label: 'สร้อยคู่', kind: 'cutout' },
+    { file: 'assets/prizes/necklace-sparkle.png', label: 'สร้อยดาว 4 แฉก', kind: 'cutout' },
+    { file: 'assets/prizes/necklace-star.png', label: 'สร้อยดาว', kind: 'cutout' },
+    { file: 'assets/prizes/necklace-sparkle-cluster.png', label: 'สร้อยรวมดาว 4 แฉก', kind: 'cutout' },
+    { file: 'assets/prizes/rings.jpg', label: 'แหวน', kind: 'photo' },
+  ];
+
+  // เทียบชื่อแบบไม่สนช่องว่าง และสะกด "เเ" (เ สองตัว) = "แ"
+  const simplify = (s) => String(s).replace(/เเ/g, 'แ').replace(/พวก/g, 'พวง').replace(/\s+/g, '').toLowerCase();
+
+  // รูปของรางวัลนี้: prize.image = '' (หาจากชื่อเอง) · 'none' (ไม่ใช้รูป) · path ของรูปที่เลือก
+  function prizeImage(prize) {
+    if (prize.image === 'none') return null;
+    if (prize.image) return PRIZE_IMAGES.find((m) => m.file === prize.image) || { file: prize.image, label: '', kind: 'cutout' };
+    if (prize.tier === 'none' || prize.tier === 'again') return null;
+    const name = simplify(prize.name);
+    const exact = PRIZE_IMAGES.find((m) => simplify(m.label) === name);
+    if (exact) return exact;
+    // ชื่อรางวัลมีชื่อรูปอยู่ข้างใน เลือกอันที่ชื่อยาวที่สุด (เช่น "สร้อยดาว 4 แฉก" ก่อน "สร้อยดาว")
+    return PRIZE_IMAGES
+      .filter((m) => name.includes(simplify(m.label)))
+      .sort((a, b) => simplify(b.label).length - simplify(a.label).length)[0] || null;
+  }
+
   // รูป QR ที่ใช้เมื่อไม่ได้อัปโหลดรูปเองในหน้าทีมงาน (เปลี่ยนไฟล์ assets/qr.png ได้)
   const DEFAULT_QR = 'assets/qr.png';
   const qrSrc = (s) => s.qrImage || DEFAULT_QR;
@@ -89,6 +120,7 @@ const LW = (() => {
       stock: p.stock === null || p.stock === '' || p.stock === undefined ? null : Math.max(0, Math.floor(Number(p.stock) || 0)),
       minSpin: Math.max(0, Math.floor(Number(p.minSpin) || 0)),
       color: p.color || '',
+      image: typeof p.image === 'string' ? p.image : '',
     })) : base.prizes;
     return { settings, prizes };
   }
@@ -220,7 +252,7 @@ const LW = (() => {
   if (localStorage.getItem(K.config) == null) resetConfig();
 
   return {
-    K, TIERS, AUTO_COLORS, DEFAULT_CONFIG, DEFAULT_QR, qrSrc, clone,
+    K, TIERS, AUTO_COLORS, DEFAULT_CONFIG, DEFAULT_QR, qrSrc, PRIZE_IMAGES, prizeImage, clone,
     getConfig, setConfig, resetConfig, normalize,
     getLog, addLog, clearLog, countGiven, remaining, odds, pick, simulate, sliceColor,
     send, onChange, getLive, setLive, beat, tvAlive, screenExtended, openTv,

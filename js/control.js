@@ -100,8 +100,10 @@
     const log = LW.getLog();
     const { rows } = LW.odds(saved, log);
     const last = log[log.length - 1];
+    const lastPrize = last && saved.prizes.find((p) => p.id === last.prizeId);
+    const lastPic = lastPrize && LW.prizeImage(lastPrize);
     $('#lastResult').innerHTML = last
-      ? `${esc(last.name)}<small>ครั้งที่ ${fmt(last.no || log.length)} · ${new Date(last.t).toLocaleTimeString('th-TH')} · ${esc(LW.TIERS[last.tier] ? LW.TIERS[last.tier].label : '')}</small>`
+      ? `${lastPic ? `<img class="last-pic" src="${esc(lastPic.file)}" alt="">` : ''}${esc(last.name)}<small>ครั้งที่ ${fmt(last.no || log.length)} · ${new Date(last.t).toLocaleTimeString('th-TH')} · ${esc(LW.TIERS[last.tier] ? LW.TIERS[last.tier].label : '')}</small>`
       : 'ยังไม่มีการหมุน';
     $('#statSpins').textContent = fmt(log.length);
     $('#statGiven').textContent = fmt(log.filter((e) => e.tier !== 'none' && e.tier !== 'again').length);
@@ -181,12 +183,29 @@
 
   // ---------- รางวัล ----------
   const TIER_OPTIONS = Object.entries(LW.TIERS).map(([k, v]) => `<option value="${k}">${v.label}</option>`).join('');
+  const IMAGE_OPTIONS = '<option value="">อัตโนมัติ (ตามชื่อ)</option>'
+    + LW.PRIZE_IMAGES.map((m) => `<option value="${esc(m.file)}">${esc(m.label)}</option>`).join('')
+    + '<option value="none">ไม่ใช้รูป</option>';
+
+  // รูปเล็กข้างชื่อรางวัล บอกว่าหน้าประกาศผลจะขึ้นรูปไหน
+  function updateThumbs() {
+    draft.prizes.forEach((p) => {
+      const tr = $(`#prizeRows tr[data-id="${CSS.escape(p.id)}"]`);
+      if (!tr) return;
+      const pic = LW.prizeImage(p);
+      const t = tr.querySelector('.thumb');
+      t.innerHTML = pic ? `<img src="${esc(pic.file)}" alt="">` : '–';
+      t.title = pic ? `หน้าประกาศผลจะขึ้นรูป: ${pic.label}` : 'ไม่มีรูป';
+      t.classList.toggle('none', !pic);
+    });
+  }
 
   function renderPrizes() {
     const given = LW.countGiven(LW.getLog());
     $('#prizeRows').innerHTML = draft.prizes.map((p, i) => `
       <tr data-id="${esc(p.id)}">
         <td><div class="move"><button data-move="-1" title="เลื่อนขึ้น">▲</button><button data-move="1" title="เลื่อนลง">▼</button></div></td>
+        <td><div class="pic-cell"><span class="thumb"></span><select data-f="image" class="pic-select">${IMAGE_OPTIONS}</select></div></td>
         <td><input type="text" data-f="name" value="${esc(p.name)}" maxlength="40"></td>
         <td><select data-f="tier" class="tier-select t-${p.tier}">${TIER_OPTIONS}</select></td>
         <td><input type="number" data-f="weight" min="0" step="1" value="${p.weight}"></td>
@@ -197,8 +216,12 @@
         <td><div class="color-cell"><input type="color" data-f="color" value="${esc(LW.sliceColor(p, i))}"><button class="auto" data-auto title="ใช้สีอัตโนมัติตาม CI">${p.color ? 'อัตโนมัติ' : ''}</button></div></td>
         <td><button class="btn btn-icon btn-danger" data-del title="ลบรางวัลนี้">✕</button></td>
       </tr>`).join('');
-    $$('#prizeRows tr').forEach((tr, i) => { tr.querySelector('[data-f="tier"]').value = draft.prizes[i].tier; });
+    $$('#prizeRows tr').forEach((tr, i) => {
+      tr.querySelector('[data-f="tier"]').value = draft.prizes[i].tier;
+      tr.querySelector('[data-f="image"]').value = draft.prizes[i].image || '';
+    });
     updateChances();
+    updateThumbs();
   }
 
   function updateChances() {
@@ -228,8 +251,10 @@
     else if (f === 'stock') p.stock = v === '' ? null : Math.max(0, Math.floor(Number(v) || 0));
     else if (f === 'minSpin') p.minSpin = Math.max(0, Math.floor(Number(v) || 0));
     else if (f === 'color') { p.color = v; e.target.nextElementSibling.textContent = 'อัตโนมัติ'; }
+    else if (f === 'image') p.image = v;
     setDirty(true);
     updateChances();
+    if (f === 'name' || f === 'tier' || f === 'image') updateThumbs();
   });
 
   $('#prizeRows').addEventListener('click', (e) => {
