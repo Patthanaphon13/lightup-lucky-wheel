@@ -51,6 +51,27 @@
     $('#saveBar').classList.toggle('show', v);
   }
 
+  // ถามยืนยันด้วยกล่องในหน้าเว็บ — คืนค่า true เมื่อกด "ตกลง"
+  function ask(text, okLabel, danger) {
+    const modal = $('#modal');
+    $('#modalText').textContent = text;
+    $('#modalOk').textContent = okLabel || 'ตกลง';
+    modal.classList.toggle('danger', !!danger);
+    modal.hidden = false;
+    setTimeout(() => $('#modalCancel').focus(), 0);
+    return new Promise((resolve) => {
+      const done = (ok) => {
+        modal.hidden = true;
+        $('#modalOk').onclick = $('#modalCancel').onclick = modal.onclick = document.onkeydown = null;
+        resolve(ok);
+      };
+      $('#modalOk').onclick = () => done(true);
+      $('#modalCancel').onclick = () => done(false);
+      modal.onclick = (e) => { if (e.target === modal) done(false); };
+      document.onkeydown = (e) => { if (e.key === 'Escape') done(false); };
+    });
+  }
+
   // ---------- ควบคุม ----------
   const PHASE_TEXT = {
     attract: 'รอลูกค้าสแกน QR',
@@ -145,7 +166,8 @@
   $('#closeResult').addEventListener('click', () => act('close'));
 
   function openTv() {
-    if (LW.tvAlive() && !confirm('จอวงล้อเปิดอยู่แล้ว ต้องการเปิดใหม่ไหม?\n(หน้าต่างเดิมจะโหลดใหม่ และต้องคลิกที่ทีวีอีกครั้งเพื่อเต็มจอ)')) return;
+    // เปิดอยู่แล้วไม่เปิดซ้ำ (เปิดซ้ำหน้าต่างเดิมจะโหลดใหม่และหลุดจากเต็มจอ)
+    if (LW.tvAlive()) { toast('จอวงล้อเปิดอยู่แล้ว — ถ้าจะเปิดใหม่ ให้ปิดหน้าต่างเดิมก่อน'); return; }
     LW.openTv().then((placed) => {
       if (placed) toast('เปิดจอวงล้อบนทีวีแล้ว — คลิกที่ทีวีหนึ่งครั้งเพื่อเต็มจอ');
       else toast('ลากหน้าต่างวงล้อไปไว้ที่ทีวี แล้วคลิกหนึ่งครั้ง');
@@ -171,7 +193,7 @@
   });
 
   document.addEventListener('keydown', (e) => {
-    if (tab !== 'control' || document.body.classList.contains('locked')) return;
+    if (tab !== 'control' || document.body.classList.contains('locked') || !$('#modal').hidden) return;
     if (e.target.matches('input, select, textarea')) return;
     if (e.key === 'u' || e.key === 'U') { e.preventDefault(); act('unlock'); }
     if (e.key === ' ') {
@@ -257,14 +279,15 @@
     if (f === 'name' || f === 'tier' || f === 'image') updateThumbs();
   });
 
-  $('#prizeRows').addEventListener('click', (e) => {
+  $('#prizeRows').addEventListener('click', async (e) => {
     const p = prizeOf(e.target);
     if (!p) return;
     const i = draft.prizes.indexOf(p);
     if (e.target.closest('[data-del]')) {
       if (draft.prizes.length <= 2) { toast('ต้องมีรางวัลอย่างน้อย 2 รายการ'); return; }
-      if (!confirm(`ลบรางวัล "${p.name}" ?`)) return;
-      draft.prizes.splice(i, 1);
+      if (!(await ask(`ลบรางวัล "${p.name}" ?`, 'ลบรางวัล', true))) return;
+      // ระหว่างรอกดยืนยัน ลำดับอาจเปลี่ยน — หาตำแหน่งใหม่อีกครั้ง
+      draft.prizes.splice(draft.prizes.indexOf(p), 1);
     } else if (e.target.closest('[data-move]')) {
       const j = i + Number(e.target.closest('[data-move]').dataset.move);
       if (j < 0 || j >= draft.prizes.length) return;
@@ -373,16 +396,17 @@
     const file = e.target.files[0];
     e.target.value = '';
     if (!file) return;
-    file.text().then((t) => {
-      const cfg = LW.normalize(JSON.parse(t));
-      if (!confirm(`นำเข้าการตั้งค่า (${cfg.prizes.length} รางวัล) แทนค่าปัจจุบัน?`)) return;
+    file.text().then(async (t) => {
+      let cfg;
+      try { cfg = LW.normalize(JSON.parse(t)); } catch (err) { toast('ไฟล์นี้ไม่ใช่ไฟล์ตั้งค่าของวงล้อ'); return; }
+      if (!(await ask(`นำเข้าการตั้งค่า (${cfg.prizes.length} รางวัล) แทนค่าปัจจุบัน?`, 'นำเข้า'))) return;
       LW.setConfig(cfg);
       reloadSaved();
       toast('นำเข้าเรียบร้อย');
-    }).catch(() => toast('ไฟล์นี้ไม่ใช่ไฟล์ตั้งค่าของวงล้อ'));
+    });
   });
-  $('#resetConfig').addEventListener('click', () => {
-    if (!confirm('คืนค่าตัวอย่างทั้งหมด? รางวัลและข้อความที่ตั้งไว้จะหายไป (ประวัติการหมุนยังอยู่)')) return;
+  $('#resetConfig').addEventListener('click', async () => {
+    if (!(await ask('คืนค่าตัวอย่างทั้งหมด?\nรางวัลและข้อความที่ตั้งไว้จะหายไป (ประวัติการหมุนยังอยู่)', 'คืนค่าตัวอย่าง', true))) return;
     LW.resetConfig();
     reloadSaved();
     toast('คืนค่าตัวอย่างแล้ว');
@@ -443,9 +467,10 @@
     // ﻿ ทำให้ Excel อ่านภาษาไทยได้ถูกต้อง
     download(`wheel-history-${stamp()}.csv`, '﻿' + lines.join('\r\n'), 'text/csv;charset=utf-8');
   });
-  $('#clearLog').addEventListener('click', () => {
+  $('#clearLog').addEventListener('click', async () => {
     const n = LW.getLog().length;
-    if (!confirm(`ล้างประวัติทั้งหมด ${fmt(n)} ครั้ง?\nจำนวนของรางวัลที่แจกไปแล้วจะกลับเป็น 0\n(แนะนำให้กด "ดาวน์โหลด Excel" เก็บไว้ก่อน)`)) return;
+    if (!n) { toast('ยังไม่มีประวัติให้ล้าง'); return; }
+    if (!(await ask(`ล้างประวัติทั้งหมด ${fmt(n)} ครั้ง?\nจำนวนของรางวัลที่แจกไปแล้วจะกลับเป็น 0\n(แนะนำให้กด "ดาวน์โหลด Excel" เก็บไว้ก่อน)`, 'ล้างประวัติ', true))) return;
     LW.clearLog();
     renderAll();
     toast('ล้างประวัติแล้ว');
