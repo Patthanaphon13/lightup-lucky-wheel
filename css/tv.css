@@ -264,6 +264,9 @@ body[data-phase="result"] .state-ready { visibility: hidden; }
 .start .logo { width: min(40vw, 520px); }
 .start .btn { font-size: 2.6vh; padding: 2vh 5vh; font-family: var(--font-thai-head); }
 .start p { color: var(--text-muted); font-size: 2vh; line-height: 1.6; margin: 0; }
+.start p b { color: var(--text); }
+.start .start-tip { font-size: 1.8vh; color: var(--text-faint); }
+.start kbd { background: var(--surface-raised); border: 1px solid var(--line-strong); border-radius: 6px; padding: .1em .5em; font: inherit; color: var(--text); }
 
 /* ซ่อนเมาส์เมื่อไม่ได้ขยับ ลูกค้าจะไม่เห็นลูกศรเมาส์ค้างบนจอ */
 body.hide-cursor, body.hide-cursor * { cursor: none !important; }

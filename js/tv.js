@@ -618,14 +618,28 @@
     identify.timer = setTimeout(() => el.classList.remove('show'), 3000);
   }
 
+  // เต็มจอบน "ทีวี" — ถ้าต่อจอแบบขยาย จะเลือกจอที่ไม่ใช่จอหลักของคอมให้เอง
+  // (ครั้งแรก Chrome จะถามสิทธิ์ "จัดการหน้าต่างบนจอทั้งหมด" ให้กดอนุญาต)
+  async function fullscreenOnTv() {
+    const el = document.documentElement;
+    if (LW.screenExtended() && 'getScreenDetails' in window) {
+      try {
+        const d = await window.getScreenDetails();
+        const tv = d.screens.find((s) => !s.isPrimary) || d.currentScreen;
+        await el.requestFullscreen({ screen: tv });
+        return;
+      } catch (e) { /* ไม่ได้รับสิทธิ์ หรือคลิกหมดอายุระหว่างรอ — เต็มจอบนจอที่หน้าต่างอยู่แทน */ }
+    }
+    el.requestFullscreen().catch(() => {});
+  }
   function toggleFullscreen() {
     if (document.fullscreenElement) document.exitFullscreen();
-    else document.documentElement.requestFullscreen().catch(() => {});
+    else fullscreenOnTv();
   }
   function startTv() {
     $('#start').classList.add('hide');
     ac();
-    if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
+    if (!document.fullscreenElement) fullscreenOnTv();
   }
   $('#start').addEventListener('click', startTv);
 
