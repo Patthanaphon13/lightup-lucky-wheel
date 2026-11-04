@@ -72,11 +72,13 @@
   // ---------- พลุ ----------
   function launch(delay) {
     setTimeout(() => {
+      // ระเบิดตามขอบจอด้านบนและด้านข้าง เว้นกลางจอไว้ให้รูปของรางวัล
+      const side = Math.random() < 0.5;
       rockets.push({
-        x: w * (0.15 + Math.random() * 0.7),
+        x: w * (side ? 0.04 + Math.random() * 0.2 : 0.76 + Math.random() * 0.2),
         y: h + 10,
         vy: -(h / 55) * (0.85 + Math.random() * 0.3),
-        target: h * (0.15 + Math.random() * 0.35),
+        target: h * (0.1 + Math.random() * 0.25),
         s: (Math.random() * 3) | 0,
       });
     }, delay);

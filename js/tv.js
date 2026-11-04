@@ -272,12 +272,14 @@
     function burst(count) {
       const w = (cv.width = innerWidth);
       cv.height = innerHeight;
+      // ยิงจากปืนใหญ่สองมุมล่าง พุ่งเข้ากลางจอ ไม่บังรูปของรางวัลตอนเปิดตัว
       for (let i = 0; i < count; i++) {
+        const left = i % 2 === 0;
         parts.push({
-          x: w / 2 + (Math.random() - 0.5) * w * 0.3,
-          y: innerHeight * 0.55,
-          vx: (Math.random() - 0.5) * 22,
-          vy: -Math.random() * 22 - 8,
+          x: left ? w * 0.02 : w * 0.98,
+          y: innerHeight * 0.95,
+          vx: (left ? 1 : -1) * (Math.random() * 16 + 6),
+          vy: -Math.random() * 20 - 16,
           s: Math.random() * 9 + 5,
           r: Math.random() * Math.PI,
           vr: (Math.random() - 0.5) * 0.3,
