@@ -379,7 +379,7 @@ body[data-phase="spinning"] .beams span { animation-duration: 1.4s; }
 .flash.go { animation: flash .9s ease-out; }
 @keyframes flash { 0% { opacity: 0; } 12% { opacity: 1; } 100% { opacity: 0; } }
 
-/* ลำแสงหมุนรอบวงล้อ */
+/* ลำแสงรอบวงล้อ (ภาพนิ่ง) — ตอนหมุนแค่สว่างขึ้น */
 .wheel-wrap { isolation: isolate; }
 .rays {
   position: absolute;
@@ -389,15 +389,12 @@ body[data-phase="spinning"] .beams span { animation-duration: 1.4s; }
   background: repeating-conic-gradient(from 0deg, rgba(255, 62, 165, .2) 0deg 5deg, transparent 5deg 15deg);
   -webkit-mask: radial-gradient(circle, #000 22%, transparent 66%);
           mask: radial-gradient(circle, #000 22%, transparent 66%);
-  animation: rot 80s linear infinite;
-  transition: opacity .6s;
+  transition: filter .6s;
 }
 .rays-2 {
   background: repeating-conic-gradient(from 7deg, rgba(139, 92, 246, .22) 0deg 3deg, transparent 3deg 20deg);
-  animation: rot 50s linear infinite reverse;
 }
-body[data-phase="spinning"] .rays { opacity: 1; filter: brightness(1.8); }
-body[data-phase="spinning"] .rays-2 { animation-duration: 4s; }
+body[data-phase="spinning"] .rays { filter: brightness(1.8); }
 @keyframes rot { to { transform: rotate(360deg); } }
 
 /* ขอบวงล้อเรืองแสงไล่สีหมุนวน */
