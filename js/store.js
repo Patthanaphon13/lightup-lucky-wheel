@@ -46,9 +46,35 @@ const LW = (() => {
     const exact = PRIZE_IMAGES.find((m) => simplify(m.label) === name);
     if (exact) return exact;
     // ชื่อรางวัลมีชื่อรูปอยู่ข้างใน เลือกอันที่ชื่อยาวที่สุด (เช่น "สร้อยดาว 4 แฉก" ก่อน "สร้อยดาว")
-    return PRIZE_IMAGES
+    const inside = PRIZE_IMAGES
       .filter((m) => name.includes(simplify(m.label)))
-      .sort((a, b) => simplify(b.label).length - simplify(a.label).length)[0] || null;
+      .sort((a, b) => simplify(b.label).length - simplify(a.label).length)[0];
+    if (inside) return inside;
+    // ชื่อสั้นหรือสะกดต่างไปบ้าง (เช่น "พวงกุญแจดาว") — เลือกรูปที่ชื่อมีส่วนตรงกันยาวที่สุด
+    let best = null;
+    let bestLen = 0;
+    for (const m of PRIZE_IMAGES) {
+      const len = commonLength(name, simplify(m.label));
+      if (len > bestLen) { best = m; bestLen = len; }
+    }
+    const shorter = best ? Math.min(name.length, simplify(best.label).length) : 0;
+    return bestLen >= 4 && bestLen >= shorter * 0.6 ? best : null;
+  }
+
+  // ความยาวของข้อความช่วงที่ยาวที่สุดที่สองชื่อมีเหมือนกัน
+  function commonLength(a, b) {
+    let max = 0;
+    const row = new Array(b.length + 1).fill(0);
+    for (let i = 1; i <= a.length; i++) {
+      let prev = 0;
+      for (let j = 1; j <= b.length; j++) {
+        const tmp = row[j];
+        row[j] = a[i - 1] === b[j - 1] ? prev + 1 : 0;
+        if (row[j] > max) max = row[j];
+        prev = tmp;
+      }
+    }
+    return max;
   }
 
   // รูป QR ที่ใช้เมื่อไม่ได้อัปโหลดรูปเองในหน้าทีมงาน (เปลี่ยนไฟล์ assets/qr.png ได้)
